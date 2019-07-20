@@ -98,7 +98,16 @@ class STM32L031x6(CoreSightTarget):
             ('setup_dbgmcu', self.setup_dbgmcu)
             )
 
+        seq.insert_before('dp_init', ('hold_reset', self.hold_reset))
+        seq.insert_after("notify", ('release_reset', self.release_reset))
+
         return seq
+
+    def hold_reset(self):
+        self.dp.link._link.drive_nreset(1)
+
+    def release_reset(self):
+        self.dp.link._link.drive_nreset(0)
 
     def setup_dbgmcu(self):
         self.write32(DBGMCU.DBG_CR, DBGMCU.DBG_CR_VALUE)
